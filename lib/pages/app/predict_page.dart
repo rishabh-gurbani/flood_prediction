@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
 
-Future<Prediction> fetchPrediction(List controllers) async {
+Future<Prediction> fetchPrediction(List controllers, model) async {
 
   Map<String, String> data = {
     'JAN' : controllers[0].text.trim(),
@@ -20,6 +20,7 @@ Future<Prediction> fetchPrediction(List controllers) async {
     'OCT' : controllers[9].text.trim(),
     'NOV' : controllers[10].text.trim(),
     'DEC' : controllers[11].text.trim(),
+    'MODEL' : model
   };
 
   final response = await http.post(
@@ -28,7 +29,7 @@ Future<Prediction> fetchPrediction(List controllers) async {
   );
   if (response.statusCode == 200) {
     var pred = Prediction.fromJson(jsonDecode(response.body));
-    uploadPrediction(controllers, pred.prediction);
+    uploadPrediction(controllers, pred.prediction, model);
     return pred;
   } else {
     // print(response.body);
@@ -42,7 +43,7 @@ List createControllers(n){
   return controllers;
 }
 
-Future uploadPrediction(controllers, prediction) async{
+Future uploadPrediction(controllers, prediction, model) async{
 
   await FirebaseFirestore.instance.collection('predictions').add(
       {
@@ -59,7 +60,8 @@ Future uploadPrediction(controllers, prediction) async{
         'OCT': controllers[9].text.trim(),
         'NOV': controllers[10].text.trim(),
         'DEC': controllers[11].text.trim(),
-        'PREDICTION' : prediction
+        'PREDICTION' : prediction,
+        'MODEL' : model
   });
 
 }
@@ -95,6 +97,12 @@ class _PredictScreenState extends State<PredictScreen> {
   var showPrediction = false;
 
   var c = createControllers(12);
+  
+  var model = 'LR';
+
+  final _models =['Logistic Regression', 'Random Forest', 'SVM'];
+
+  String? _selectedModel = "Logistic Regression";
 
   void resetAll(){
     for(TextEditingController t in c){
@@ -113,7 +121,7 @@ class _PredictScreenState extends State<PredictScreen> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children:[
-              SizedBox(height: 100,),
+              SizedBox(height:50,),
               Row(
                 children: [
                   const Padding(
@@ -133,8 +141,8 @@ class _PredictScreenState extends State<PredictScreen> {
                   child: Text("Enter monthly rainfall in mm"),
                 )],
               ),
+              SizedBox(height: 10,),
 
-              SizedBox(height: 40,),
               Column(
                 children: [
                   Row(
@@ -168,9 +176,39 @@ class _PredictScreenState extends State<PredictScreen> {
                       MonthRainfallInput(month: "DEC", c:c[11]),
                     ],
                   ),
-                  const SizedBox(height: 30,),
+                  const SizedBox(height: 20,),
                 ],
               ),
+
+
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 35),
+                child: DropdownButtonFormField(
+                    focusColor: Colors.deepOrange,
+                    icon: const Icon(Icons.arrow_drop_down, color: Colors.deepOrange,),
+                    decoration: const InputDecoration(
+                      label: Text("Select Prediction Model"),
+                    ),
+                    value: _selectedModel,
+                    items: _models.map(
+                            (e){
+                          return DropdownMenuItem(value: e,child: Text(e),);
+                        }).toList(),
+                    onChanged: (val){
+                      setState(() {
+                        _selectedModel= val as String;
+                        if(_selectedModel==_models[0]){
+                          model='LR';
+                        } else if(_selectedModel==_models[1]){
+                          model='RF';
+                        } else if(_selectedModel==_models[2]){
+                          model='SVM';
+                        }
+                      });
+                    }
+                ),
+              ),
+              SizedBox(height: 30,),
 
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -203,7 +241,7 @@ class _PredictScreenState extends State<PredictScreen> {
                     onTap: (){
                       setState((){
                         showPrediction = true;
-                        prediction = fetchPrediction(c);
+                        prediction = fetchPrediction(c, model);
                       });
                     },
                     child: Container(
@@ -223,7 +261,7 @@ class _PredictScreenState extends State<PredictScreen> {
                 ],
               ),
 
-              const SizedBox(height: 40,),
+              const SizedBox(height: 30,),
 
               if(showPrediction) Row(
                 mainAxisAlignment: MainAxisAlignment.center,

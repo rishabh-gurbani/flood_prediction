@@ -1,0 +1,46 @@
+{
+  "project_info": {
+    "project_number": "632848827748",
+    "project_id": "floodapp-5f65d",
+    "storage_bucket": "floodapp-5f65d.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:632848827748:android:cc3d3ed3b2e61f088a6671",
+        "android_client_info": {
+          "package_name": "com.example.flood_prediction_app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "632848827748-imp22coqk4leo8f6pp2fhlbtt09p2l8d.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCWWc_QnTLbYHWOR3djJjaWGbH51_wWgvI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "632848827748-imp22coqk4leo8f6pp2fhlbtt09p2l8d.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "632848827748-ftaf1tjcurbvjl8n9fptu72d0tps1mb1.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.floodPredictionApp"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

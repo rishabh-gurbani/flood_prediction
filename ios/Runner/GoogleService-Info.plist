@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CLIENT_ID</key>
+	<string>632848827748-ftaf1tjcurbvjl8n9fptu72d0tps1mb1.apps.googleusercontent.com</string>
+	<key>REVERSED_CLIENT_ID</key>
+	<string>com.googleusercontent.apps.632848827748-ftaf1tjcurbvjl8n9fptu72d0tps1mb1</string>
+	<key>API_KEY</key>
+	<string>AIzaSyC4GCGEPKe7htAJYCIsLGIYIdBAtOgFr3o</string>
+	<key>GCM_SENDER_ID</key>
+	<string>632848827748</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>com.example.floodPredictionApp</string>
+	<key>PROJECT_ID</key>
+	<string>floodapp-5f65d</string>
+	<key>STORAGE_BUCKET</key>
+	<string>floodapp-5f65d.appspot.com</string>
+	<key>IS_ADS_ENABLED</key>
+	<false></false>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false></false>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true></true>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:632848827748:ios:57aba1a00753362d8a6671</string>
+</dict>
+</plist>

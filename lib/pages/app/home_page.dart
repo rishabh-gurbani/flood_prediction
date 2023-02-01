@@ -20,17 +20,20 @@ class _HomeState extends State<Home> {
     });
   }
 
-  final List<Widget> _pages = [
-    PredictScreen(),
-    HistoryPage(),
-    UserInfoPage()
-  ];
+  // final List<Widget> _pages = [
+  //   PredictScreen(),
+  //   HistoryPage(),
+  //   UserInfoPage()
+  // ];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.grey[300],
-      body: _pages[_selectedIndex],
+      body: IndexedStack(
+        children: const <Widget>[PredictScreen(), HistoryPage(), UserInfoPage()],
+        index: _selectedIndex,
+      ),
       bottomNavigationBar: BottomNavigationBar(
         onTap: _navigateBottomBar,
         currentIndex: _selectedIndex,

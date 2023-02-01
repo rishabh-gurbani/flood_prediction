@@ -13,22 +13,24 @@ class HistoryPage extends StatefulWidget {
 class _HistoryPageState extends State<HistoryPage> {
 
   List documentIDs = [];
-  List documents = [];
 
   Future getDocIDs() async{
     await FirebaseFirestore.instance.collection('predictions').
     where("UserID", isEqualTo: FirebaseAuth.instance.currentUser?.email.toString())
         .orderBy('TIME', descending: true).get().then((value) => value.docs.forEach((element) {
-      documents.add(element);
-      documentIDs.add(element.reference.id);
-    }));
+          if(!documentIDs.contains(element.reference.id)) {
+            setState(() {
+              documentIDs.add(element.reference.id);
+            });
+              }
+            }));
   }
 
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
-        const SizedBox(height: 145,),
+        const SizedBox(height: 100,),
         Row(
           children: const [
             Padding(
@@ -44,8 +46,26 @@ class _HistoryPageState extends State<HistoryPage> {
         ),
         Row(
           children: const [Padding(
-            padding: EdgeInsets.symmetric(vertical: 10, horizontal: 30),
+            padding: EdgeInsets.symmetric(vertical:0, horizontal: 30),
             child: Text("View, Edit or Delete"),
+          )],
+        ),
+        SizedBox(height: 30,),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [GestureDetector(
+            onTap: getDocIDs,
+            child: Container(
+              decoration: BoxDecoration(
+                color: Colors.deepOrange,
+                borderRadius: BorderRadius.circular(10)
+              ),
+              child: const Padding(
+                padding: EdgeInsets.all(10.0),
+                child: Text("Refresh",
+                  style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),),
+              ),
+            ),
           )],
         ),
         Expanded(
@@ -67,7 +87,6 @@ class _HistoryPageState extends State<HistoryPage> {
                           await FirebaseFirestore.instance.collection('predictions').doc(documentIDs[index].toString()).delete();
                           setState(() {
                             documentIDs=[];
-                            documents=[];
                           });
                         },
                       )

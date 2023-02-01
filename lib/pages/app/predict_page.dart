@@ -355,6 +355,7 @@ class InputField extends StatelessWidget {
           fillColor: Colors.grey[50],
           filled: true,
           hintText: prompt,
+          focusColor: Colors.deepOrange
         ),
       ),
     );

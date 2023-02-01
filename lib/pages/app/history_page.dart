@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flood_prediction_app/read_data/get_user_name.dart';
+import 'package:flood_prediction_app/read_data/get_prediction.dart';
 import 'package:flutter/material.dart';
 
 class HistoryPage extends StatefulWidget {
@@ -12,15 +12,13 @@ class HistoryPage extends StatefulWidget {
 
 class _HistoryPageState extends State<HistoryPage> {
 
-  // IDs
   List documentIDs = [];
   List documents = [];
 
-  //get IDs
   Future getDocIDs() async{
     await FirebaseFirestore.instance.collection('predictions').
-    where("UserID", isEqualTo: FirebaseAuth.instance.currentUser?.email.toString()).
-    get().then((value) => value.docs.forEach((element) {
+    where("UserID", isEqualTo: FirebaseAuth.instance.currentUser?.email.toString())
+        .orderBy('TIME', descending: true).get().then((value) => value.docs.forEach((element) {
       documents.add(element);
       documentIDs.add(element.reference.id);
     }));
@@ -66,8 +64,11 @@ class _HistoryPageState extends State<HistoryPage> {
                     ),
                       child: GetPrediction(documentId: documentIDs[index],
                         onPressed:() async {
-                          await FirebaseFirestore.instance.collection('predictions').doc(documents[index].toString()).delete();
-                          documentIDs.removeAt(index);
+                          await FirebaseFirestore.instance.collection('predictions').doc(documentIDs[index].toString()).delete();
+                          setState(() {
+                            documentIDs=[];
+                            documents=[];
+                          });
                         },
                       )
                   ),

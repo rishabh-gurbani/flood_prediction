@@ -3,7 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-
+import 'history_page.dart';
 
 Future<Prediction> fetchPrediction(List controllers, model) async {
 
@@ -61,8 +61,9 @@ Future uploadPrediction(controllers, prediction, model) async{
         'NOV': controllers[10].text.trim(),
         'DEC': controllers[11].text.trim(),
         'PREDICTION' : prediction,
-        'MODEL' : model
-  });
+        'MODEL' : model,
+        'TIME' : FieldValue.serverTimestamp()
+      });
 
 }
 

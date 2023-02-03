@@ -1,9 +1,9 @@
 import 'dart:convert';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:csv/csv.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'history_page.dart';
 
 Future<Prediction> fetchPrediction(List controllers, model) async {
 
@@ -24,7 +24,7 @@ Future<Prediction> fetchPrediction(List controllers, model) async {
   };
 
   final response = await http.post(
-      Uri.parse('https://flasktest-d22a.onrender.com/predict'),
+      Uri.parse('https://project-school.onrender.com/predict'),
     body: data
   );
   if (response.statusCode == 200) {
@@ -37,10 +37,11 @@ Future<Prediction> fetchPrediction(List controllers, model) async {
   }
 }
 
-List createControllers(n){
+List<TextEditingController> createControllers(n){
   var x_list = [1, 2, 3, 4, 5, 6,7, 8, 9, 10, 11, 12];
-  var controllers = x_list.map((x) => TextEditingController()).toList();
-  return controllers;
+  var _controllers = x_list.map((x) => TextEditingController()).toList();
+
+  return _controllers;
 }
 
 Future uploadPrediction(controllers, prediction, model) async{
@@ -82,12 +83,22 @@ class Prediction{
 
 }
 
+
+List yearsList(){
+  var years=['Custom'];
+  for (int i = 1901; i <= 2018 ; i++) {
+    years.add("$i");
+  }
+  return years;
+}
+
 class PredictScreen extends StatefulWidget {
   const PredictScreen({Key? key}) : super(key: key);
 
   @override
   State<PredictScreen> createState() => _PredictScreenState();
 }
+
 
 class _PredictScreenState extends State<PredictScreen> {
 
@@ -97,19 +108,29 @@ class _PredictScreenState extends State<PredictScreen> {
 
   var showPrediction = false;
 
-  var c = createControllers(12);
+  List<TextEditingController> c = createControllers(12);
   
   var model = 'LR';
 
-  final _models =['Logistic Regression', 'Random Forest', 'SVM'];
+  final _models =['Logistic Regression', 'Random Forest', 'SVM', 'xgBoost'];
 
   String? _selectedModel = "Logistic Regression";
+
+  bool showCustom = true;
+
+  final _years = yearsList();
+
+  late int _selectedYear;
+
+  var _groundReport = "LOW";
+
 
   void resetAll(){
     for(TextEditingController t in c){
       t.clear();
     }
     setState(() {
+      showCustom = true;
       showPrediction=false;
     });
   }
@@ -122,7 +143,7 @@ class _PredictScreenState extends State<PredictScreen> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children:[
-              SizedBox(height:50,),
+              SizedBox(height:100,),
               Row(
                 children: [
                   const Padding(
@@ -136,13 +157,52 @@ class _PredictScreenState extends State<PredictScreen> {
                   ),
                 ],
               ),
+
+              SizedBox(height: 10,),
+
+
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 35),
+                child: DropdownButtonFormField(
+                  menuMaxHeight: 300,
+                    icon: const Icon(Icons.arrow_drop_down, color: Colors.deepOrange,),
+                    decoration: const InputDecoration(
+                      label: Text("Select Year of prediction or enter custom"),
+                    ),
+                    value: _years[0],
+                    items: _years.map(
+                            (e){
+                          return DropdownMenuItem(value: e,child: Text("$e"),);
+                        }).toList(),
+                    onChanged: (val){
+                      if(val!='Custom') {
+                        setControllers(c, int.parse(val as String));
+                        getGroundPrediction(int.parse(val as String));
+                        setState(() {
+                          _selectedYear = int.parse(val as String);
+                          showCustom = false;
+                        });
+                      } else {
+                        resetAll();
+                        showCustom = true;
+                      }
+
+                      setState(() {
+                        showPrediction = false;
+                      });
+                    }
+                ),
+              ),
+
+              SizedBox(height: 20,),
+
               Row(
                 children: const [Padding(
                   padding: EdgeInsets.symmetric(vertical: 10, horizontal: 30),
                   child: Text("Enter monthly rainfall in mm"),
                 )],
               ),
-              SizedBox(height: 10,),
+              SizedBox(height: 5,),
 
               Column(
                 children: [
@@ -185,7 +245,6 @@ class _PredictScreenState extends State<PredictScreen> {
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 35),
                 child: DropdownButtonFormField(
-                    focusColor: Colors.deepOrange,
                     icon: const Icon(Icons.arrow_drop_down, color: Colors.deepOrange,),
                     decoration: const InputDecoration(
                       label: Text("Select Prediction Model"),
@@ -264,11 +323,25 @@ class _PredictScreenState extends State<PredictScreen> {
 
               const SizedBox(height: 30,),
 
+              if(!showCustom) Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text("Ground Report (Flood Occurred): ", style : TextStyle(fontSize: 20)),
+                  Text(_groundReport, style: const TextStyle(fontSize: 20,
+                      fontWeight: FontWeight.w900))
+                ],
+              ),
+
+              SizedBox(height: 20,),
+
               if(showPrediction) Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Center(child: Text("Flood Likelihood: ",
+                  const Center(child: Text("Flood Likelihood ",
                       style : TextStyle(fontSize: 20)
+                  )),
+                  const Center(child: Text("(Model Prediction) : ",
+                      style : TextStyle(fontSize: 15)
                   )),
                   const SizedBox(height: 20,),
                   FutureBuilder<Prediction>(
@@ -285,13 +358,43 @@ class _PredictScreenState extends State<PredictScreen> {
                     },
                   ),
                 ],
-              )
+              ),
+
+              SizedBox(height: 20,),
+
+
             ],
           ),
         ),
     );
   }
+
+  void setControllers(List<TextEditingController> c, int val) async {
+    List<List<dynamic>> year = await processCsv() ;
+    int i=0;
+    for (var controller in c) {
+      controller.text = "${year[val-1900][2+i]}";
+      i++;
+    }
+  }
+
+
+  void getGroundPrediction(int val) async {
+    List<List<dynamic>> year = await processCsv();
+    setState(() {
+      _groundReport = year[val-1900][15];
+    });
+  }
+
+
+  Future<List<List<dynamic>>> processCsv() async {
+    var result = await DefaultAssetBundle.of(context).loadString(
+      "assets/data/kerala.csv",
+    );
+    return const CsvToListConverter().convert(result, eol: "\n");
+  }
 }
+
 
 class MonthRainfallInput extends StatelessWidget {
   const MonthRainfallInput({

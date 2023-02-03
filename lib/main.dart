@@ -18,6 +18,9 @@ class MyApp extends StatelessWidget {
         theme: ThemeData(
           // Define the default brightness and colors.
           primaryColor: Colors.deepOrange,
+          textSelectionTheme: const TextSelectionThemeData(
+            cursorColor: Colors.deepOrange, //<-- SEE HERE
+          ),
         ),
 
       debugShowCheckedModeBanner: false,

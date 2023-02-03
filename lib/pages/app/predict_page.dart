@@ -256,6 +256,7 @@ class _PredictScreenState extends State<PredictScreen> {
                         }).toList(),
                     onChanged: (val){
                       setState(() {
+                        showPrediction = false;
                         _selectedModel= val as String;
                         if(_selectedModel==_models[0]){
                           model='LR';

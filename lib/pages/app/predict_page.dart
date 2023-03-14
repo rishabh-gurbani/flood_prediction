@@ -106,6 +106,8 @@ class _PredictScreenState extends State<PredictScreen> {
 
   var prediction;
 
+  var xyz;
+
   var showPrediction = false;
 
   List<TextEditingController> c = createControllers(12);
@@ -256,7 +258,7 @@ class _PredictScreenState extends State<PredictScreen> {
                         }).toList(),
                     onChanged: (val){
                       setState(() {
-                        showPrediction = false;
+
                         _selectedModel= val as String;
                         if(_selectedModel==_models[0]){
                           model='LR';
